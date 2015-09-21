@@ -12,8 +12,10 @@ import com.github.javaparser.ast.type.ClassOrInterfaceType;
 
 import analysis.dataset.DataSet;
 import analysis.graph.DependencyGraph;
+import analysis.transformations.FilterParser;
 import analysis.transformations.FlatMapParser;
 import analysis.transformations.MapParser;
+import analysis.transformations.MapPartitionParser;
 import analysis.transformations.TransformationParser;
 
 public class DependencyAnalyser {
@@ -93,89 +95,6 @@ public class DependencyAnalyser {
 		parser.parseMethod(methods.get("main"));
 	}
 	
-	/*
-	private String findExecutionEnvironment(MethodDeclaration method) {
-		
-		for (Statement stmt : method.getBody().getStmts()) {
-			if (stmt.toStringWithoutComments().indexOf("ExecutionEnvironment") >= 0) {
-				return iterateNode(stmt);
-			}
-		}
-		
-		return null;
-	}
-	
-	
-	private String iterateNode(Node node) {
-		if(node instanceof VariableDeclarationExpr) {
-			VariableDeclarationExpr varDeclExpr = (VariableDeclarationExpr)node;
-			for(VariableDeclarator varDecl : varDeclExpr.getVars()) {
-				if(varDecl.getInit().toStringWithoutComments().indexOf("ExecutionEnvironment") >= 0) {
-					return varDecl.getId().getName();
-				}
-			}
-		} else {
-			String executionEnvironmentVarName;
-			
-			if(node.getChildrenNodes() != null) {
-				for(Node children : node.getChildrenNodes()) {
-					if((executionEnvironmentVarName = iterateNode(children)) != null) {
-						return executionEnvironmentVarName;
-					}
-				}
-			}
-		}
-		
-		return null;
-	}
-	
-	
-	private void parseMain(MethodDeclaration main) {
-		
-		String executionEnvironmentVar = null;
-		DataSet current = null;
-		
-		for (Statement statement : main.getBody().getStmts()) {
-			
-			if (current != null) {
-				current = this.parseStatement(statement);
-			} else {
-				if(statement.toStringWithoutComments().indexOf("ExecutionEnvironment") >= 0) {
-					executionEnvironmentVar = iterateNode(statement);
-				} else if(executionEnvironmentVar != null) {
-					if(statement.toStringWithoutComments().indexOf(executionEnvironmentVar) >= 0) {
-						current = findRoot(statement, executionEnvironmentVar);
-						this.inputs.add(current);
-					}
-				}
-			}
-		}
-	}
-	
-	
-	private DataSet findRoot (Node node, String executionEnvironmentVar) {
-		if(node instanceof VariableDeclarationExpr) {
-			VariableDeclarationExpr varDeclExpr = (VariableDeclarationExpr)node;
-			for(VariableDeclarator varDecl : varDeclExpr.getVars()) {
-				if(varDecl.getInit().toStringWithoutComments().indexOf(executionEnvironmentVar) >= 0) {
-					return new DataSet(varDeclExpr.getType(), varDecl.getId().getName());
-				}
-			}
-		} else {
-			DataSet root;
-			
-			if(node.getChildrenNodes() != null) {
-				for(Node children : node.getChildrenNodes()) {
-					if((root = findRoot(children, executionEnvironmentVar)) != null) {
-						return root;
-					}
-				}
-			}
-		}
-		
-		return null;
-	}
-	*/
 		
 	private void parseClass(ClassOrInterfaceDeclaration cid) {
 
@@ -199,6 +118,8 @@ public class DependencyAnalyser {
 				switch (implement.getName()) {
 					case "MapFunction": transformations.put(cid.getName(), new MapParser(cid)); break;
 					case "FlatMapFunction": transformations.put(cid.getName(), new FlatMapParser(cid)); break;
+					case "MapPartitionFunction": transformations.put(cid.getName(), new MapPartitionParser(cid)); break;
+					case "FilterFunction": transformations.put(cid.getName(), new FilterParser(cid)); break;
 				}
 			}
 		}

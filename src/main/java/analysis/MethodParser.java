@@ -12,9 +12,11 @@ import com.github.javaparser.ast.expr.*;
 import com.github.javaparser.ast.stmt.*;
 
 import analysis.dataset.DataSet;
+import analysis.transformations.FilterParser;
 import analysis.transformations.FlatMapParser;
 import analysis.transformations.MapParser;
 import analysis.transformations.MapPartitionParser;
+import analysis.transformations.ProjectParser;
 import analysis.transformations.TransformationParser;
 
 public class MethodParser {
@@ -161,17 +163,17 @@ public class MethodParser {
 			
 			if(current != null) {
 				Expression arg = method.getArgs().get(0);
+				TransformationParser tp = null;
 				
 				if(arg instanceof ObjectCreationExpr) {
 					ObjectCreationExpr obj = (ObjectCreationExpr)arg;
-					TransformationParser tp = null;
 					
 					if(obj.getAnonymousClassBody() != null) {
 						switch(method.getName()) {
-						
-							case "flatMap": tp = new FlatMapParser(obj, current);
-							case "map": tp = new MapParser(obj, current);
-							case "mapPartition": tp = new MapPartitionParser(obj, current);
+							case "map": tp = new MapParser(obj, current); break;
+							case "flatMap": tp = new FlatMapParser(obj, current); break;
+							case "mapPartition": tp = new MapPartitionParser(obj, current); break;
+							case "filter": tp = new FilterParser(obj, current); break;
 						}
 						
 						if(tp != null) {
@@ -189,7 +191,13 @@ public class MethodParser {
 						this.parseExpression(a, current);
 					}
 				} else {
+					switch(method.getName()) {
+						case "project": tp = new ProjectParser(method.getArgs(), current); break;
+					}
 					
+					if(tp != null) {
+						return tp.getDataSetTransformation().getOutputDataSet();
+					}
 				}
 			} else {
 				List<DataSet> args = new ArrayList<DataSet>();

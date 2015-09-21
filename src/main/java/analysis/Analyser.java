@@ -11,7 +11,7 @@ public class Analyser {
 
 	public static void main(String[] args) throws Exception {
 
-		File source = new File("/home/matthias/Downloads/flink-examples/flink-java-examples/src/main/java/org/apache/flink/examples/java/wordcount/PojoExample.java");
+		File source = new File("D:\\Downloads\\examples\\wordcount\\PojoExample.java");
 		
 		if(!source.exists() || !source.isFile()) {
 			throw new FileNotFoundException();
