@@ -61,16 +61,34 @@ public class DataSetTransformation {
 	
 	
 	public void addDataSetDependency(DataSetDependency dependency) {
-		if (!this.inputDataSet.contains(dependency.getSource())) {
+		
+		DataSetElement source = null;
+		
+		for (DataSetElement input : inputDataSet) {
+			if (input.equals(dependency.getSource())) {
+				source = input; break;
+			}
+		}
+		
+		if (source == null) {
 			return;
 		}
 		
-		if (!this.outputDataSet.contains(dependency.getTarget())) {
-			this.outputDataSet.add(dependency.getTarget());
+		DataSetElement target = null;
+		
+		for (DataSetElement output : outputDataSet) {
+			if (output.equals(dependency.getTarget())) {
+				target = output; break;
+			}
 		}
 		
-		if (!this.dependencies.contains(dependency)) {
-			this.dependencies.add(dependency);
+		if (target == null) {
+			target = dependency.getTarget();
+			outputDataSet.add(target);
+		}
+		
+		if (!dependencies.contains(dependency)) {
+			dependencies.add(new DataSetDependency(source, target, dependency.getType()));
 		}
 	}
 	

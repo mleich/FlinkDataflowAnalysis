@@ -3,8 +3,7 @@ package analysis.transformations;
 import java.util.List;
 
 import com.github.javaparser.ast.expr.Expression;
-import com.github.javaparser.ast.expr.StringLiteralExpr;
-
+import com.github.javaparser.ast.expr.IntegerLiteralExpr;
 import analysis.dataset.DataSet;
 import analysis.dataset.DataSetDependency;
 import analysis.dataset.DataSetElement;
@@ -16,10 +15,15 @@ public class ProjectParser extends TransformationParser {
 		
 		int i = 0;
 		for (Expression exp : project) {
-			int sourceNumber = Integer.parseInt(((StringLiteralExpr)exp).getValue());
-			DataSetElement source = inputDataSet.get(sourceNumber);
+			if (exp instanceof IntegerLiteralExpr) {
+				int sourceNumber = Integer.parseInt(((IntegerLiteralExpr)exp).getValue());
+				
+				if (inputDataSet.size() < sourceNumber) {
+					DataSetElement source = inputDataSet.get(sourceNumber);
 			
-			dependencies.add(new DataSetDependency(source, new DataSetElement(source.getName(), source.getFormat(), i++)));
+					dependencies.add(new DataSetDependency(source, new DataSetElement(source.getName(), source.getFormat(), i++)));
+				}
+			}
 		}
 	}
 }
