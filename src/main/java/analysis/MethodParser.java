@@ -158,7 +158,7 @@ public class MethodParser {
 			if(method.getName().equals("println")) {
 				return null;
 			}
-			
+
 			current = this.parseExpression(method.getScope(), null);
 			
 			if(current != null) {
@@ -183,7 +183,7 @@ public class MethodParser {
 						tp = DependencyAnalyser.transformations.get(obj.getType().getName());
 						
 						if(tp != null) {
-							return tp.getDataSetTransformation(ds).getOutputDataSet();
+							return tp.getDataSetTransformation(current).getOutputDataSet();
 						}
 					}
 					
