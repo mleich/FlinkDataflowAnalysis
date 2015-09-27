@@ -11,6 +11,10 @@ public class DataSetDependency {
 	public static final int GROUP_BY = 1;
 	public static final int SORT_GROUP_ASCENDING = 2;
 	public static final int SORT_GROUP_DESCENDING = 3;
+	public static final int MAX_AGGREGATION = 4;
+	public static final int MIN_AGGREGATION = 5;
+	public static final int SUM_AGGREGATION = 6;
+	
 	
 	public DataSetDependency(DataSetElement source, DataSetElement target) {
 		this(source, target, DEFAULT);

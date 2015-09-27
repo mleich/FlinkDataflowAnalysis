@@ -12,6 +12,7 @@ import com.github.javaparser.ast.expr.*;
 import com.github.javaparser.ast.stmt.*;
 
 import analysis.dataset.DataSet;
+import analysis.transformations.AggregateParser;
 import analysis.transformations.FilterParser;
 import analysis.transformations.FlatMapParser;
 import analysis.transformations.MapParser;
@@ -193,6 +194,8 @@ public class MethodParser {
 				} else {
 					switch(method.getName()) {
 						case "project": tp = new ProjectParser(method.getArgs(), current); break;
+						case "aggregate": 
+						case "and": tp = new AggregateParser(method.getArgs().get(1), method.getArgs().get(0), current); break;
 					}
 					
 					if(tp != null) {

@@ -3,28 +3,43 @@ package analysis.transformations;
 import com.github.javaparser.ast.expr.Expression;
 import com.github.javaparser.ast.expr.IntegerLiteralExpr;
 import com.github.javaparser.ast.expr.StringLiteralExpr;
-
 import analysis.dataset.DataSet;
 import analysis.dataset.DataSetDependency;
 import analysis.dataset.DataSetElement;
 import analysis.dataset.DataSetTransformation;
 
-public class SortGroupParser extends TransformationParser {
+public class AggregateParser extends TransformationParser {
 
-	private int orderNumber;
-	private Expression field;
+	public static final String MAX_AGGREGATION = "MAX";
+	public static final String MIN_AGGREGATION = "MIN";
+	public static final String SUM_AGGREGATION = "SUM";
 	
-	public SortGroupParser(Expression field, Expression order, DataSet inputDataSet) {
-		super("AnonymousSortGroupFunction", "SortGroupFunction", inputDataSet);
+	private Expression field;
+	private int aggregation;
+	
+	
+	public AggregateParser(Expression field, Expression aggregation, DataSet inputDataSet) {
+		super("AnonymousAggregateFunction", "AggregateFunction", inputDataSet);
 		
-		this.orderNumber = (order.toStringWithoutComments().indexOf("ASCENDING") >= 0) ? DataSetDependency.SORT_GROUP_ASCENDING : DataSetDependency.SORT_GROUP_DESCENDING;
 		this.field = field;
+		String aggr = ((StringLiteralExpr)aggregation).getValue();
+		
+		if (aggr.indexOf(MAX_AGGREGATION) >= 0) {
+			this.name = "MaxAggregateFunction";
+			this.aggregation = DataSetDependency.MAX_AGGREGATION;
+		} else if (aggr.indexOf(MIN_AGGREGATION) >= 0) {
+			this.name = "MinAggregateFunction";
+			this.aggregation = DataSetDependency.MIN_AGGREGATION;
+		} else if (aggr.indexOf(SUM_AGGREGATION) >= 0) {
+			this.name = "SumAggregateFunction";
+			this.aggregation = DataSetDependency.SUM_AGGREGATION;
+		}
 	}
-
+	
 	
 	@Override
 	public DataSetTransformation getDataSetTransformation() {
-
+		
 		DataSetTransformation transformation = new DataSetTransformation(name, operation, inputDataSet);
 		
 		if (field instanceof IntegerLiteralExpr) {
@@ -32,7 +47,7 @@ public class SortGroupParser extends TransformationParser {
 			
 			for (DataSetElement elem : inputDataSet) {
 				if (elem.getNumber() == number) {
-					transformation.addDataSetDependency(new DataSetDependency(elem, elem.clone(), orderNumber));
+					transformation.addDataSetDependency(new DataSetDependency(elem, elem.clone(), aggregation));
 				} else {
 					transformation.addDataSetDependency(new DataSetDependency(elem, elem.clone()));
 				}
@@ -42,7 +57,7 @@ public class SortGroupParser extends TransformationParser {
 			
 			for (DataSetElement elem : inputDataSet) {
 				if (elem.getName().equals(name)) {
-					transformation.addDataSetDependency(new DataSetDependency(elem, elem.clone(), orderNumber));
+					transformation.addDataSetDependency(new DataSetDependency(elem, elem.clone(), aggregation));
 				} else {
 					transformation.addDataSetDependency(new DataSetDependency(elem, elem.clone()));
 				}

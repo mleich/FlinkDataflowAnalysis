@@ -7,23 +7,37 @@ import com.github.javaparser.ast.expr.IntegerLiteralExpr;
 import analysis.dataset.DataSet;
 import analysis.dataset.DataSetDependency;
 import analysis.dataset.DataSetElement;
+import analysis.dataset.DataSetTransformation;
 
 public class ProjectParser extends TransformationParser {
 
-	public ProjectParser(List<Expression> project, DataSet inputDataSet) {
+	List<Expression> projectFields;
+	
+	public ProjectParser(List<Expression> projectFields, DataSet inputDataSet) {
 		super ("AnonymousProjectFunction", "ProjectFunction", inputDataSet);
 		
+		this.projectFields = projectFields;
+	}
+
+	
+	@Override
+	public DataSetTransformation getDataSetTransformation() {
+		
+		DataSetTransformation transformation = new DataSetTransformation(name, operation, inputDataSet);
+		
 		int i = 0;
-		for (Expression exp : project) {
-			if (exp instanceof IntegerLiteralExpr) {
-				int sourceNumber = Integer.parseInt(((IntegerLiteralExpr)exp).getValue());
+		for (Expression field : projectFields) {
+			if (field instanceof IntegerLiteralExpr) {
+				int sourceNumber = Integer.parseInt(((IntegerLiteralExpr)field).getValue());
 				
 				if (inputDataSet.size() < sourceNumber) {
 					DataSetElement source = inputDataSet.get(sourceNumber);
 			
-					dependencies.add(new DataSetDependency(source, new DataSetElement(source.getName(), source.getFormat(), i++)));
+					transformation.addDataSetDependency(new DataSetDependency(source, new DataSetElement(source.getName(), source.getFormat(), i++)));
 				}
 			}
 		}
+		
+		return transformation;
 	}
 }
