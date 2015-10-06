@@ -62,4 +62,24 @@ public class DataSetDependency {
 	public boolean isSortGroup() {
 		return type == SORT_GROUP_ASCENDING || type == SORT_GROUP_DESCENDING;
 	}
+	
+	
+	public boolean isAggregation() {
+		return type == MAX_AGGREGATION || type == MIN_AGGREGATION || type == SUM_AGGREGATION;
+	}
+	
+	
+	@Override
+	public boolean equals(Object obj) {
+		
+		if(obj != null && obj instanceof DataSetDependency) {
+			DataSetDependency dsd = (DataSetDependency)obj;
+			
+			if(source.equals(dsd.getSource()) && target.equals(dsd.getTarget())) {
+				return true;
+			}
+		}
+		
+		return false;
+	}
 }

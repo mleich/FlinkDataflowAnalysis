@@ -1,34 +1,32 @@
 package analysis.transformations;
 
-import java.util.HashMap;
 import java.util.List;
 import com.github.javaparser.ast.body.BodyDeclaration;
 import com.github.javaparser.ast.body.MethodDeclaration;
+
 import analysis.dataset.DataSet;
 import analysis.dataset.DataSetDependency;
 import analysis.dataset.DataSetTransformation;
+import analysis.parser.Parser;
 
-public abstract class TransformationParser {
+public abstract class TransformationParser extends Parser {
 
 	protected String name;
 	protected String operation;
 	protected DataSet inputDataSet;
-	protected DependencyNode output;
-	
-	public HashMap<String, MethodDeclaration> methods;
+	protected TransformationMethodParser methodParser;
 	
 	
 	public TransformationParser(String name, String operation, DataSet inputDataSet) {
 		this.name = name;
 		this.operation = operation;
 		this.inputDataSet = inputDataSet;
-		this.output = null;
-		this.methods = new HashMap<String, MethodDeclaration>();
+		this.methodParser = null;
 	}
 	
 	
 	public List<DataSetDependency> getDataSetDependencies() {
-		return output.getDataSetDependencies();
+		return methodParser.getDataSetDependencies();
 	}
 	
 	
@@ -53,7 +51,7 @@ public abstract class TransformationParser {
 			}
 		}
 		
-		TransformationMethodParser parser = new TransformationMethodParser(this);
-		output = parser.parseMethod(methods.get(method));
+		methodParser = new TransformationMethodParser(this);
+		methodParser.parseMethod(methods.get(method));
 	}
 }

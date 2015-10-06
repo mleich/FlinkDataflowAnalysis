@@ -4,6 +4,7 @@ import com.github.javaparser.ast.body.ClassOrInterfaceDeclaration;
 import com.github.javaparser.ast.expr.ObjectCreationExpr;
 
 import analysis.dataset.DataSet;
+import analysis.dataset.DataSetDependency;
 import analysis.dataset.DataSetTransformation;
 
 public class ReduceParser extends TransformationParser {
@@ -27,7 +28,9 @@ public class ReduceParser extends TransformationParser {
 		
 		DataSetTransformation transformation = new DataSetTransformation(name, operation, inputDataSet);
 		
-		
+		for (DataSetDependency dep : getDataSetDependencies()) {
+			transformation.addDataSetDependency(dep);
+		}
 		
 		return transformation;
 	}

@@ -6,8 +6,8 @@ import java.util.List;
 import com.github.javaparser.ast.type.ClassOrInterfaceType;
 import com.github.javaparser.ast.type.Type;
 
-import analysis.CustomType;
 import analysis.DependencyAnalyser;
+import analysis.parser.custom.type.CustomTypeParser;
 
 public class DataSet extends ArrayList<DataSetElement> {
 	
@@ -52,10 +52,10 @@ public class DataSet extends ArrayList<DataSetElement> {
 			for (Type arg : type.getTypeArgs()) {
 				ClassOrInterfaceType argType = (ClassOrInterfaceType)arg.getChildrenNodes().get(0);
 				
-				CustomType ct = DependencyAnalyser.customTypes.get(argType.getName());
+				CustomTypeParser ct = DependencyAnalyser.getCustomType(argType.getName());
 				
 				if (ct != null) {
-					for (DataSetElement elem : ct.getFields()) {
+					for (DataSetElement elem : ct.getElements()) {
 						this.add(elem);
 					}
 				} else {

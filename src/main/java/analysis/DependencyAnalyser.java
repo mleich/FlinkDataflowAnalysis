@@ -12,10 +12,13 @@ import com.github.javaparser.ast.type.ClassOrInterfaceType;
 
 import analysis.dataset.DataSet;
 import analysis.graph.DependencyGraph;
+import analysis.parser.custom.type.CustomTypeParser;
 import analysis.transformations.FilterParser;
 import analysis.transformations.FlatMapParser;
+import analysis.transformations.GroupReduceParser;
 import analysis.transformations.MapParser;
 import analysis.transformations.MapPartitionParser;
+import analysis.transformations.ReduceParser;
 import analysis.transformations.TransformationParser;
 
 public class DependencyAnalyser {
@@ -24,21 +27,29 @@ public class DependencyAnalyser {
 	private List<DataSet> inputs;
 	private String env;
 	
-	public static HashMap<String, CustomType> customTypes;
-	public static HashMap<String, TransformationParser> transformations;
-	public static HashMap<String, MethodDeclaration> methods;
+	private static HashMap<String, CustomTypeParser> customTypes = new HashMap<String, CustomTypeParser>();
+	private static HashMap<String, TransformationParser> transformations = new HashMap<String, TransformationParser>();
+	private static HashMap<String, MethodDeclaration> methods = new HashMap<String, MethodDeclaration>();
+	
+	
+	public static CustomTypeParser getCustomType(String name) {
+		return customTypes.get(name);
+	}
+	
+	
+	public static TransformationParser getTransformation(String name) {
+		return transformations.get(name);
+	}
+	
+	public static MethodDeclaration getMethod(String name) {
+		return methods.get(name);
+	}
 	
 	
 	public DependencyAnalyser(CompilationUnit cu) {
-
 		this.cu = cu;
-		
 		this.inputs = null;
 		this.env = null;
-		
-		this.customTypes = new HashMap<String, CustomType>();
-		this.transformations = new HashMap<String, TransformationParser>();
-		this.methods = new HashMap<String, MethodDeclaration>();
 	}
 	
 	
@@ -95,7 +106,7 @@ public class DependencyAnalyser {
 		parser.parseMethod(methods.get("main"));
 	}
 	
-		
+	
 	private void parseClass(ClassOrInterfaceDeclaration cid) {
 
 		List<ClassOrInterfaceType> imps = cid.getImplements();
@@ -104,22 +115,30 @@ public class DependencyAnalyser {
 			List<ClassOrInterfaceType> exts = cid.getExtends();
 			
 			if (exts == null) {
-				customTypes.put(cid.getName(), new CustomType(cid));
+				customTypes.put(cid.getName(), new CustomTypeParser(cid));
 			} else {
 				for (ClassOrInterfaceType e : exts) {
 					if (e.getName().matches("^Tuple\\d{1,2}$")) {
-						customTypes.put(cid.getName(), new CustomType(cid.getName(), e.getTypeArgs()));
+						customTypes.put(cid.getName(), new CustomTypeParser(cid.getName(), e.getTypeArgs()));
 					}
 				}
 			}
 		} else {
 			for (ClassOrInterfaceType implement : imps) {
 				
+				TransformationParser parser = null;
+				
 				switch (implement.getName()) {
-					case "MapFunction": transformations.put(cid.getName(), new MapParser(cid)); break;
-					case "FlatMapFunction": transformations.put(cid.getName(), new FlatMapParser(cid)); break;
-					case "MapPartitionFunction": transformations.put(cid.getName(), new MapPartitionParser(cid)); break;
-					case "FilterFunction": transformations.put(cid.getName(), new FilterParser(cid)); break;
+					case "MapFunction": parser = new MapParser(cid); break;
+					case "FlatMapFunction": parser = new FlatMapParser(cid); break;
+					case "MapPartitionFunction": parser = new MapPartitionParser(cid); break;
+					case "FilterFunction": parser = new FilterParser(cid); break;
+					case "ReduceFunction": parser = new ReduceParser(cid); break;
+					case "GroupReduceFunction": parser = new GroupReduceParser(cid); break;
+				}
+				
+				if(parser != null) {
+					transformations.put(cid.getName(), parser);
 				}
 			}
 		}

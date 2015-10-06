@@ -71,7 +71,7 @@ public class DataSetTransformation {
 		}
 		
 		if (source == null) {
-			return;
+			source = dependency.getSource();
 		}
 		
 		DataSetElement target = null;

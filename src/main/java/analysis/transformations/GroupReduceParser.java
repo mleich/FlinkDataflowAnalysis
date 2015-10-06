@@ -25,6 +25,10 @@ public class GroupReduceParser extends TransformationParser {
 	@Override
 	public DataSetTransformation getDataSetTransformation() {
 		
-		return null;
+		DataSetTransformation transformation = new DataSetTransformation(name, operation, inputDataSet);
+		
+		
+		
+		return transformation;
 	}
 }
